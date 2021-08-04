@@ -9,6 +9,9 @@ static struct task_struct *kthread_1;
 static struct task_struct *kthread_2;
 static int t1 = 1, t2 = 2;
 
+MODULE_LICENSE("Dual BSD/GPL");
+MODULE_DESCRIPTION("kernel threads in LKM");
+
 /** 
  * @brief kthread function which will be executed by the threads
  * 
@@ -27,10 +30,9 @@ int thread_fn(void *arg)
     }
 
     printk(KERN_INFO "kthread - Thread %d finished execution\n", thread_nr);
+    return 0;
 }
 
-MODULE_LISCENSE("GPL");
-MODULE_DESCRIPTION("kernel threads in LKM");
 
 /**
  * @brief This function is called when the module is loaded into the kernel
@@ -64,8 +66,13 @@ static int __init module_init_func(void)
     }
 
     printk(KERN_INFO "kthread - Both threads are running now\n");
+    msleep(5000);
+    printk(KERN_INFO "kthread - after sleeping for 5 sec, close two threads\n");
+    kthread_stop(kthread_1);
+    kthread_stop(kthread_2);
     return 0;
 }
+
 
 /**
  * @brief This function is called when the module is removed from the kernel
@@ -74,10 +81,8 @@ static void __exit module_exit_func(void)
 {
     printk(KERN_INFO "Kernel module unloaded\n");
     printk(KERN_INFO "kthread - Stop both threads\n");
-
-    kthread_stop(kthread_1);
-    kthread_stop(kthread_2);
 }
+
 
 module_init(module_init_func);
 module_exit(module_exit_func);
